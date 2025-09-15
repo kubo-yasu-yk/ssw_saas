@@ -21,7 +21,7 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="bg-white p-4 rounded shadow">
-        <div className="font-semibold mb-2">最近の活動</div>
+        <div className="font-semibold mb-2">最近の活動履歴</div>
         <ul className="list-disc pl-5 space-y-1">
           {recent.map(r => (
             <li key={r.id}>{r.title} を作成 ({r.createdAt})</li>
