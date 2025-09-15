@@ -40,4 +40,3 @@ SPAルーティング用に `vercel.json` でルートを `/` にリライトし
 - 書類一覧、特定技能外国人一覧（簡易追加）、会社情報（保存）
 
 詳細は `.kiro/specs/tokutei-ginou-management` を参照してください。
-# ssw_saas
