@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+
 import { getItem, removeItem, setItem } from '@utils/storage'
 import type { User } from '@types/index'
 
@@ -13,7 +14,7 @@ const demoUsers: Array<{ email: string; password: string; user: User }> = [
   {
     email: 'admin@example.com',
     password: 'password123',
-    user: { id: 'u1', email: 'admin@example.com', name: '管理者', role: 'admin' },
+    user: { id: 'u1', email: 'admin@example.com', name: '管理者', role: 'admin', companyId: 'c1' },
   },
 ]
 

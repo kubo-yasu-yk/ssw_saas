@@ -1,23 +1,19 @@
+import { Badge } from '@components/ui/badge'
 import type { DocumentStatus } from '@types/index'
 
-const map: Record<DocumentStatus, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  submitted: 'bg-yellow-100 text-yellow-800',
-  approved: 'bg-green-100 text-green-700',
+const badgeConfig: Record<DocumentStatus, { label: string; variant: 'default' | 'secondary' | 'destructive'; className?: string }> = {
+  draft: { label: '下書き', variant: 'secondary', className: 'bg-muted text-muted-foreground' },
+  submitted: { label: '申請中', variant: 'secondary', className: 'bg-amber-100 text-amber-800' },
+  approved: { label: '承認済み', variant: 'default' },
+  rejected: { label: '差戻し', variant: 'destructive' },
 }
 
 export default function StatusBadge({ status }: { status: DocumentStatus }) {
-  return <span className={`text-xs px-2 py-1 rounded ${map[status]}`}>{label(status)}</span>
-}
-
-function label(s: DocumentStatus) {
-  switch (s) {
-    case 'draft':
-      return '下書き'
-    case 'submitted':
-      return '申請中'
-    case 'approved':
-      return '承認済み'
-  }
+  const config = badgeConfig[status]
+  return (
+    <Badge variant={config.variant} className={config.className}>
+      {config.label}
+    </Badge>
+  )
 }
 
