@@ -8,25 +8,30 @@
 
 ### 技術スタック
 - **フロントエンド**: React 18 + TypeScript
+- **UIコンポーネント**: shadcn/ui
 - **スタイリング**: Tailwind CSS
 - **ルーティング**: React Router v6
 - **状態管理**: React Context API + useReducer
-- **フォーム管理**: React Hook Form
+- **フォーム管理**: React Hook Form + Zod
 - **PDF生成**: jsPDF + html2canvas
 - **データ保存**: localStorage
 - **ビルドツール**: Vite
 - **デプロイ**: Vercel（推奨）
+- **アイコン**: Lucide React
 
 ### アプリケーション構成
 ```
 src/
 ├── components/          # 再利用可能なUIコンポーネント
+│   ├── ui/             # shadcn/uiコンポーネント
+│   └── custom/         # カスタムコンポーネント
 ├── pages/              # ページコンポーネント
 ├── hooks/              # カスタムフック
 ├── context/            # React Context
 ├── types/              # TypeScript型定義
 ├── data/               # ハードコーディングデータ
 ├── utils/              # ユーティリティ関数
+├── lib/                # ライブラリ設定（shadcn/ui utils等）
 └── styles/             # スタイルファイル
 ```
 
@@ -41,12 +46,25 @@ src/
 6. **CompanyInfoPage** - 会社情報画面
 
 ### 共通コンポーネント
+
+#### shadcn/uiベースコンポーネント
+1. **Button** - ボタンコンポーネント（shadcn/ui）
+2. **Input** - 入力フィールド（shadcn/ui）
+3. **Select** - セレクトボックス（shadcn/ui）
+4. **Dialog** - モーダルダイアログ（shadcn/ui）
+5. **Card** - カードコンポーネント（shadcn/ui）
+6. **Badge** - ステータスバッジ（shadcn/ui）
+7. **Table** - テーブルコンポーネント（shadcn/ui）
+8. **Form** - フォームコンポーネント（shadcn/ui + React Hook Form）
+9. **Toast** - 通知コンポーネント（shadcn/ui）
+10. **Sheet** - サイドシート（shadcn/ui）
+
+#### カスタムコンポーネント
 1. **Header** - ヘッダーナビゲーション
 2. **Sidebar** - サイドバーメニュー
-3. **FormField** - フォーム入力フィールド
-4. **Button** - ボタンコンポーネント
-5. **Modal** - モーダルダイアログ
-6. **LoadingSpinner** - ローディング表示
+3. **LoadingSpinner** - ローディング表示
+4. **StatusBadge** - ステータス表示（Badgeをラップ）
+5. **FormField** - フォーム入力フィールド（shadcn/ui Formをラップ）
 
 ### 書類作成コンポーネント
 1. **ResidenceStatusForm** - 在留資格認定証明書フォーム
@@ -191,53 +209,73 @@ interface Document {
 
 ## UIデザイン設計
 
-### デザインシステム
+### デザインシステム（shadcn/ui準拠）
 
 #### カラーパレット
+shadcn/uiのデフォルトカラーシステムを使用し、CSS変数で管理：
+
 ```css
-/* プライマリカラー */
---primary-50: #eff6ff;
---primary-500: #3b82f6;  /* メインブルー */
---primary-600: #2563eb;
---primary-700: #1d4ed8;
+/* ライトモード */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222.2 84% 4.9%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222.2 84% 4.9%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.5rem;
+}
 
-/* セカンダリカラー */
---gray-50: #f9fafb;
---gray-100: #f3f4f6;
---gray-500: #6b7280;
---gray-700: #374151;
---gray-900: #111827;
-
-/* ステータスカラー */
---success: #10b981;    /* 承認済み */
---warning: #f59e0b;    /* 申請中 */
---error: #ef4444;      /* 却下 */
---info: #06b6d4;       /* 下書き */
+/* カスタムステータスカラー */
+:root {
+  --status-draft: 210 40% 96%;      /* 下書き - グレー */
+  --status-submitted: 45 93% 47%;   /* 申請中 - イエロー */
+  --status-approved: 142 76% 36%;   /* 承認済み - グリーン */
+  --status-rejected: 0 84% 60%;     /* 却下 - レッド */
+}
 ```
 
 #### タイポグラフィ
+shadcn/uiのタイポグラフィシステムを使用：
+
 ```css
 /* フォントファミリー */
-font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+font-family: 'Noto Sans JP', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-/* フォントサイズ */
---text-xs: 0.75rem;    /* 12px - キャプション */
---text-sm: 0.875rem;   /* 14px - 補助テキスト */
---text-base: 1rem;     /* 16px - 本文 */
---text-lg: 1.125rem;   /* 18px - 小見出し */
---text-xl: 1.25rem;    /* 20px - 見出し */
---text-2xl: 1.5rem;    /* 24px - ページタイトル */
---text-3xl: 1.875rem;  /* 30px - メインタイトル */
+/* Tailwind CSS Typography Classes */
+.text-xs     /* 12px */
+.text-sm     /* 14px */
+.text-base   /* 16px */
+.text-lg     /* 18px */
+.text-xl     /* 20px */
+.text-2xl    /* 24px */
+.text-3xl    /* 30px */
+.text-4xl    /* 36px */
 ```
 
 #### スペーシング
+Tailwind CSSのスペーシングシステムを使用：
+
 ```css
---spacing-1: 0.25rem;  /* 4px */
---spacing-2: 0.5rem;   /* 8px */
---spacing-3: 0.75rem;  /* 12px */
---spacing-4: 1rem;     /* 16px */
---spacing-6: 1.5rem;   /* 24px */
---spacing-8: 2rem;     /* 32px */
+.p-1   /* 4px */
+.p-2   /* 8px */
+.p-3   /* 12px */
+.p-4   /* 16px */
+.p-6   /* 24px */
+.p-8   /* 32px */
 ```
 
 ### レイアウト設計
@@ -309,112 +347,424 @@ font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
 └─────────────────────────────────────┘
 ```
 
-#### 3. 書類作成フォーム
-```
-┌─────────────────────────────────────┐
-│ [戻る] 在留資格認定証明書交付申請書   │
-├─────────────────────────────────────┤
-│                                     │
-│ 基本情報                            │
-│ ┌─────────────────────────────────┐ │
-│ │ 氏名: [入力フィールド]           │ │
-│ │ 生年月日: [日付選択]             │ │
-│ │ 国籍: [選択ボックス]             │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ 在留資格情報                        │
-│ ┌─────────────────────────────────┐ │
-│ │ 在留資格: [選択ボックス]         │ │
-│ │ 在留期間: [選択ボックス]         │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ [プレビュー] [PDF出力] [保存]       │
-└─────────────────────────────────────┘
+#### 3. 書類作成フォーム（shadcn/ui使用）
+```typescript
+// レイアウト例
+<div className="container mx-auto p-6">
+  <div className="flex items-center gap-4 mb-6">
+    <Button variant="ghost" size="sm">
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      戻る
+    </Button>
+    <h1 className="text-2xl font-bold">在留資格認定証明書交付申請書</h1>
+  </div>
+
+  <Form {...form}>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>基本情報</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>氏名</FormLabel>
+                <FormControl>
+                  <Input placeholder="山田太郎" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="birthDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>生年月日</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>在留資格情報</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="residenceStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>在留資格</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="在留資格を選択" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="specified-skilled-worker">特定技能</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
+      </Card>
+
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline">
+          プレビュー
+        </Button>
+        <Button type="button" variant="outline">
+          PDF出力
+        </Button>
+        <Button type="submit">
+          保存
+        </Button>
+      </div>
+    </form>
+  </Form>
+</div>
 ```
 
-#### 4. 一覧画面
-```
-┌─────────────────────────────────────┐
-│ 書類一覧                 [新規作成] │
-├─────────────────────────────────────┤
-│ [検索] [フィルター: 全て ▼]         │
-├─────────────────────────────────────┤
-│                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ 📄 在留資格認定証明書            │ │
-│ │    田中太郎 | 申請中 | 2024/01/15│ │
-│ │    [編集] [PDF] [削除]          │ │
-│ └─────────────────────────────────┘ │
-│                                     │
-│ ┌─────────────────────────────────┐ │
-│ │ 📄 定期面談報告書                │ │
-│ │    佐藤花子 | 承認済み | 2024/01/10│ │
-│ │    [表示] [PDF] [削除]          │ │
-│ └─────────────────────────────────┘ │
-└─────────────────────────────────────┘
+#### 4. 一覧画面（shadcn/ui使用）
+```typescript
+// レイアウト例
+<div className="container mx-auto p-6">
+  <div className="flex justify-between items-center mb-6">
+    <h1 className="text-2xl font-bold">書類一覧</h1>
+    <Button>
+      <Plus className="h-4 w-4 mr-2" />
+      新規作成
+    </Button>
+  </div>
+
+  <div className="flex gap-4 mb-6">
+    <div className="flex-1">
+      <Input
+        placeholder="書類を検索..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="max-w-sm"
+      />
+    </div>
+    <Select value={statusFilter} onValueChange={setStatusFilter}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="ステータス" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="all">全て</SelectItem>
+        <SelectItem value="draft">下書き</SelectItem>
+        <SelectItem value="submitted">申請中</SelectItem>
+        <SelectItem value="approved">承認済み</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+
+  <div className="grid gap-4">
+    {documents.map((doc) => (
+      <Card key={doc.id}>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <FileText className="h-8 w-8 text-blue-500" />
+              <div>
+                <h3 className="font-semibold">{doc.title}</h3>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>{doc.foreignerName}</span>
+                  <span>•</span>
+                  <StatusBadge status={doc.status}>
+                    {getStatusLabel(doc.status)}
+                  </StatusBadge>
+                  <span>•</span>
+                  <span>{formatDate(doc.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Edit className="h-4 w-4 mr-2" />
+                編集
+              </Button>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                PDF
+              </Button>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    ))}
+  </div>
+</div>
 ```
 
-### コンポーネント設計
+### コンポーネント設計（shadcn/ui準拠）
 
 #### ボタンコンポーネント
 ```typescript
+import { Button } from "@/components/ui/button"
+
 // プライマリボタン
-<Button variant="primary" size="md">
+<Button variant="default" size="default">
   保存
 </Button>
 
 // セカンダリボタン
-<Button variant="secondary" size="md">
+<Button variant="secondary" size="default">
   キャンセル
 </Button>
 
 // 危険操作ボタン
-<Button variant="danger" size="sm">
+<Button variant="destructive" size="sm">
   削除
+</Button>
+
+// アウトラインボタン
+<Button variant="outline" size="default">
+  プレビュー
 </Button>
 ```
 
-#### フォームフィールドコンポーネント
+#### フォームコンポーネント
 ```typescript
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+
+const formSchema = z.object({
+  name: z.string().min(1, "氏名は必須です"),
+})
+
+<Form {...form}>
+  <form onSubmit={form.handleSubmit(onSubmit)}>
+    <FormField
+      control={form.control}
+      name="name"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>氏名</FormLabel>
+          <FormControl>
+            <Input placeholder="山田太郎" {...field} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  </form>
+</Form>
+```
+
+#### セレクトコンポーネント
+```typescript
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 <FormField
-  label="氏名"
-  type="text"
-  required
-  error={errors.name}
-  placeholder="山田太郎"
+  control={form.control}
+  name="nationality"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>国籍</FormLabel>
+      <Select onValueChange={field.onChange} defaultValue={field.value}>
+        <FormControl>
+          <SelectTrigger>
+            <SelectValue placeholder="国籍を選択" />
+          </SelectTrigger>
+        </FormControl>
+        <SelectContent>
+          <SelectItem value="japan">日本</SelectItem>
+          <SelectItem value="vietnam">ベトナム</SelectItem>
+          <SelectItem value="philippines">フィリピン</SelectItem>
+        </SelectContent>
+      </Select>
+      <FormMessage />
+    </FormItem>
+  )}
 />
 ```
 
 #### ステータスバッジコンポーネント
 ```typescript
-<StatusBadge status="submitted">申請中</StatusBadge>
-<StatusBadge status="approved">承認済み</StatusBadge>
-<StatusBadge status="draft">下書き</StatusBadge>
+import { Badge } from "@/components/ui/badge"
+import { cn } from "@/lib/utils"
+
+interface StatusBadgeProps {
+  status: 'draft' | 'submitted' | 'approved' | 'rejected'
+  children: React.ReactNode
+}
+
+const StatusBadge = ({ status, children }: StatusBadgeProps) => {
+  return (
+    <Badge 
+      variant={status === 'approved' ? 'default' : 'secondary'}
+      className={cn(
+        status === 'draft' && 'bg-gray-100 text-gray-800',
+        status === 'submitted' && 'bg-yellow-100 text-yellow-800',
+        status === 'approved' && 'bg-green-100 text-green-800',
+        status === 'rejected' && 'bg-red-100 text-red-800'
+      )}
+    >
+      {children}
+    </Badge>
+  )
+}
 ```
 
-### レスポンシブデザイン
+#### カードコンポーネント
+```typescript
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+
+<Card>
+  <CardHeader>
+    <CardTitle>在留資格認定証明書</CardTitle>
+    <CardDescription>田中太郎 | 2024/01/15</CardDescription>
+  </CardHeader>
+  <CardContent>
+    <div className="flex gap-2">
+      <Button variant="outline" size="sm">編集</Button>
+      <Button variant="outline" size="sm">PDF</Button>
+      <Button variant="destructive" size="sm">削除</Button>
+    </div>
+  </CardContent>
+</Card>
+```
+
+#### テーブルコンポーネント
+```typescript
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+<Table>
+  <TableHeader>
+    <TableRow>
+      <TableHead>書類種別</TableHead>
+      <TableHead>対象者</TableHead>
+      <TableHead>ステータス</TableHead>
+      <TableHead>作成日</TableHead>
+      <TableHead>操作</TableHead>
+    </TableRow>
+  </TableHeader>
+  <TableBody>
+    <TableRow>
+      <TableCell>在留資格認定証明書</TableCell>
+      <TableCell>田中太郎</TableCell>
+      <TableCell>
+        <StatusBadge status="submitted">申請中</StatusBadge>
+      </TableCell>
+      <TableCell>2024/01/15</TableCell>
+      <TableCell>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm">編集</Button>
+          <Button variant="outline" size="sm">PDF</Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  </TableBody>
+</Table>
+```
+
+#### ダイアログコンポーネント
+```typescript
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+
+<Dialog>
+  <DialogTrigger asChild>
+    <Button variant="destructive">削除</Button>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>書類を削除しますか？</DialogTitle>
+      <DialogDescription>
+        この操作は取り消すことができません。
+      </DialogDescription>
+    </DialogHeader>
+    <div className="flex justify-end gap-2">
+      <Button variant="outline">キャンセル</Button>
+      <Button variant="destructive">削除</Button>
+    </div>
+  </DialogContent>
+</Dialog>
+```
+
+#### トーストコンポーネント
+```typescript
+import { toast } from "@/components/ui/use-toast"
+
+// 成功通知
+toast({
+  title: "保存完了",
+  description: "書類が正常に保存されました。",
+})
+
+// エラー通知
+toast({
+  title: "エラー",
+  description: "保存に失敗しました。",
+  variant: "destructive",
+})
+```
+
+### レスポンシブデザイン（Tailwind CSS準拠）
 
 #### ブレークポイント
-```css
-/* モバイル */
-@media (max-width: 768px) {
-  - サイドバーをハンバーガーメニューに変更
-  - フォームを1カラムレイアウトに変更
-  - テーブルをカードレイアウトに変更
-}
+Tailwind CSSのレスポンシブプレフィックスを使用：
 
-/* タブレット */
-@media (min-width: 769px) and (max-width: 1024px) {
-  - サイドバー幅を200pxに縮小
-  - フォームを2カラムレイアウトに調整
-}
+```typescript
+// モバイルファースト設計
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {/* モバイル: 1列, タブレット: 2列, デスクトップ: 3列 */}
+</div>
 
-/* デスクトップ */
-@media (min-width: 1025px) {
+// サイドバーのレスポンシブ対応
+<Sheet>
+  <SheetTrigger asChild>
+    <Button variant="outline" size="icon" className="md:hidden">
+      <Menu className="h-4 w-4" />
+    </Button>
+  </SheetTrigger>
+  <SheetContent side="left" className="w-64">
+    {/* モバイル用サイドバー */}
+  </SheetContent>
+</Sheet>
+
+// デスクトップ用固定サイドバー
+<div className="hidden md:flex md:w-64 md:flex-col">
+  {/* デスクトップ用サイドバー */}
+</div>
+```
+
+#### レスポンシブ対応
+- **モバイル（sm未満）**: 
+  - サイドバーをSheetコンポーネントでオーバーレイ表示
+  - フォームを1カラムレイアウト
+  - テーブルをCardレイアウトに変更
+  - ボタンサイズを調整
+
+- **タブレット（md）**: 
+  - サイドバー幅を調整
+  - フォームを2カラムレイアウト
+  - テーブル表示を維持
+
+- **デスクトップ（lg以上）**: 
   - フルレイアウト表示
   - 3カラムフォームレイアウト
-}
-```
+  - 全機能を表示
 
 ### アクセシビリティ設計
 
@@ -636,15 +986,42 @@ flowchart TD
 - 適切な画面遷移を保持
 - フォーム入力中の場合は確認ダイアログ表示
 
+## shadcn/ui導入による利点
+
+### 開発効率の向上
+- **一貫したデザインシステム**: 統一されたUIコンポーネント
+- **アクセシビリティ**: WAI-ARIA準拠のコンポーネント
+- **TypeScript完全対応**: 型安全なコンポーネント使用
+- **カスタマイズ性**: CSS変数による柔軟なテーマ設定
+
+### コンポーネント品質
+- **Radix UI基盤**: 堅牢なプリミティブコンポーネント
+- **フォーカス管理**: キーボードナビゲーション対応
+- **状態管理**: 適切な状態管理とイベントハンドリング
+- **レスポンシブ対応**: モバイルファーストデザイン
+
+### 保守性
+- **コンポーネント分離**: 再利用可能なUIコンポーネント
+- **スタイル管理**: Tailwind CSSによる効率的なスタイリング
+- **バージョン管理**: shadcn/ui CLIによる簡単な更新
+
 ## 今後の拡張性
 
 ### バックエンド連携準備
 - API通信用のサービス層設計
 - 認証トークン管理の準備
 - データ同期機能の設計
+- React Query/SWRとの統合
 
 ### 機能拡張
-- 多言語対応（i18n）
-- 通知機能
-- ファイルアップロード機能
-- 印刷最適化
+- **多言語対応（i18n）**: react-i18nextとの統合
+- **通知機能**: shadcn/ui Toastコンポーネント活用
+- **ファイルアップロード機能**: ドラッグ&ドロップ対応
+- **印刷最適化**: CSS print mediaクエリ対応
+- **ダークモード**: shadcn/uiテーマシステム活用
+- **データテーブル**: shadcn/ui Data Tableコンポーネント
+
+### パフォーマンス最適化
+- **コンポーネント遅延読み込み**: React.lazy()との組み合わせ
+- **バンドルサイズ最適化**: 必要なコンポーネントのみインポート
+- **キャッシュ戦略**: React Queryとの統合
