@@ -14,7 +14,7 @@ export function Toaster() {
               {description ? <ToastDescription>{description}</ToastDescription> : null}
             </div>
             {action}
-            <ToastClose />
+            <ToastClose onClick={() => dismiss(id)} />
           </Toast>
         )
       })}
