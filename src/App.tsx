@@ -24,25 +24,23 @@ function Protected({ children }: { children: JSX.Element }) {
 
 function Shell() {
   return (
-    <div className="min-h-screen bg-muted/20">
-      <div className="mx-auto flex min-h-screen max-w-7xl">
+    <div className="flex flex-col min-h-screen bg-muted/20">
+      <Header />
+      <div className="flex flex-1 pt-4">
         <Sidebar />
-        <div className="flex-1">
-          <Header />
-          <main className="space-y-6 p-4 md:p-6">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/documents" element={<DocumentListPage />} />
-              <Route path="/foreigners" element={<ForeignerListPage />} />
-              <Route path="/company" element={<CompanyInfoPage />} />
-              <Route path="/forms/residence-status" element={<ResidenceStatusForm />} />
-              <Route path="/forms/period-extension" element={<PeriodExtensionForm />} />
-              <Route path="/forms/status-change" element={<StatusChangeForm />} />
-              <Route path="/forms/interview-report" element={<InterviewReportForm />} />
-              <Route path="/forms/resignation-report" element={<ResignationReportForm />} />
-            </Routes>
-          </main>
-        </div>
+        <main className="flex-1 space-y-6 p-4 md:p-6">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/documents" element={<DocumentListPage />} />
+            <Route path="/foreigners" element={<ForeignerListPage />} />
+            <Route path="/company" element={<CompanyInfoPage />} />
+            <Route path="/forms/residence-status" element={<ResidenceStatusForm />} />
+            <Route path="/forms/period-extension" element={<PeriodExtensionForm />} />
+            <Route path="/forms/status-change" element={<StatusChangeForm />} />
+            <Route path="/forms/interview-report" element={<InterviewReportForm />} />
+            <Route path="/forms/resignation-report" element={<ResignationReportForm />} />
+          </Routes>
+        </main>
       </div>
     </div>
   )

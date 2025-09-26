@@ -9,6 +9,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Users,
+  Plus,
 } from 'lucide-react'
 
 import { Button } from '@components/ui/button'
@@ -53,6 +54,10 @@ export default function Sidebar() {
   const location = useLocation()
   const [isFormsOpen, setIsFormsOpen] = useState(() => location.pathname.startsWith('/forms/'))
 
+  const handleJobPostingClick = () => {
+    window.open('https://ssw-pf.vercel.app/client/login', '_blank')
+  }
+
   return (
     <aside className="hidden border-r bg-card/50 md:flex md:w-64 md:flex-col md:gap-2 md:p-4">
       <div className="space-y-1">
@@ -79,6 +84,18 @@ export default function Sidebar() {
             ))}
           </div>
         )}
+
+        {/* 求人を投稿するボタン */}
+        <div className="mt-6">
+          <Button
+            onClick={handleJobPostingClick}
+            variant="outline"
+            className="w-full justify-start gap-2 text-sm font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            求人を投稿する
+          </Button>
+        </div>
       </div>
     </aside>
   )

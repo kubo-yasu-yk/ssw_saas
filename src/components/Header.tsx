@@ -80,12 +80,12 @@ export default function Header() {
     <header className="flex h-16 items-center justify-between border-b bg-background px-4 shadow-sm">
       <div className="flex items-center gap-2">
         <MobileNav />
-        <Link to="/" className="hidden text-lg font-semibold tracking-tight md:inline-flex">
-          特定技能在留資格管理SaaS
+        <Link to="/" className="flex items-center gap-2">
+          <span className="text-lg font-semibold tracking-tight">特定技能在留資格管理SaaS</span>
+          <span className="rounded-full bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+            モック版
+          </span>
         </Link>
-        <span className="hidden rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground md:inline-flex">
-          モック版
-        </span>
         <span className="text-sm font-semibold md:hidden">{pageTitle}</span>
       </div>
       <div className="flex items-center gap-3">
