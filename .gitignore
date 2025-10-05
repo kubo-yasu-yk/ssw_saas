@@ -1,16 +1,23 @@
 # Dependencies
 node_modules/
+frontend/node_modules/
 
 # Build outputs
 dist/
+frontend/dist/
 build/
 
 # Environment variables
 .env
+frontend/.env
 .env.local
+frontend/.env.local
 .env.development.local
+frontend/.env.development.local
 .env.test.local
+frontend/.env.test.local
 .env.production.local
+frontend/.env.production.local
 
 # IDE and editor files
 .vscode/
