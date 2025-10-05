@@ -9,6 +9,12 @@ npm install
 npm run dev
 ```
 
+### 環境変数
+
+- `.env.local` を作成し、開発環境の `REACT_APP_API_URL`（任意で `VITE_API_URL`）を設定してください。サンプルは `.env.local.example` を参照します。
+- 本番環境向けのデフォルト値は `.env.production` に設定しています。必要に応じてデプロイ環境で上書きしてください。
+- Viteの `envPrefix` に `REACT_APP_` を追加しているため、既存のReactアプリと同様の命名でAPIエンドポイントを参照できます。
+
 ## ビルド
 
 ```
@@ -38,5 +44,6 @@ SPAルーティング用に `vercel.json` でルートを `/` にリライトし
 - 認証（モック）、ルートガード、基本レイアウト
 - 書類フォーム（認定/更新/変更、面談/随時報告）プレビューとPDF出力
 - 書類一覧、特定技能外国人一覧（簡易追加）、会社情報（保存）
+- API連携準備のための抽象化レイヤー（ApiClient）、JWTトークン管理、統一的なエラートースト/ローディング制御
 
 詳細は `.kiro/specs/tokutei-ginou-management` を参照してください。

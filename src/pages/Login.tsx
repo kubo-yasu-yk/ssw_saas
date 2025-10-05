@@ -17,7 +17,7 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const { login } = useAuth()
+  const { login, authError } = useAuth()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -36,8 +36,6 @@ export default function LoginPage() {
     if (ok) {
       toast({ title: 'ログインしました', description: 'ダッシュボードへリダイレクトします。' })
       navigate('/')
-    } else {
-      toast({ title: '認証に失敗しました', description: 'メールアドレスまたはパスワードをご確認ください。', variant: 'destructive' })
     }
   }
 
@@ -80,6 +78,11 @@ export default function LoginPage() {
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? '認証中...' : 'ログイン'}
               </Button>
+              {authError && (
+                <p className="text-sm text-destructive whitespace-pre-line" role="alert">
+                  {authError.message}
+                </p>
+              )}
               <p className="text-xs text-muted-foreground">
                 demo: admin@example.com / password123
               </p>
@@ -90,4 +93,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
