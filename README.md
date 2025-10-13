@@ -3,6 +3,11 @@
 特定技能外国人の在留資格管理を効率化するWebアプリケーションです。Vite + React + TypeScript + Tailwind で構成されたフロントエンドと、Supabaseをバックエンドとして使用しています。  
 デプロイの再実行が必要な場合は、`main` ブランチに軽微な変更をコミットして push するだけで Vercel の Production が自動で再デプロイされます。
 
+> **環境戦略（プロトタイプ向け）**  
+> - Supabase プロジェクトは「開発（ステージング兼用）」と「本番」の 2 つを用意し、本番データを保護します。  
+> - ローカル／Vercel Preview は開発 Supabase へ接続し、Production は本番 Supabase へ接続します。  
+> - 詳細は [環境設計ガイド](./docs/environment-setup.md) を参照してください。
+
 ## ディレクトリ構成
 
 ```
