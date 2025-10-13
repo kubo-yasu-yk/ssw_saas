@@ -1,6 +1,7 @@
 # 特定技能 在留資格管理システム
 
-特定技能外国人の在留資格管理を効率化するWebアプリケーションです。Vite + React + TypeScript + Tailwind で構成されたフロントエンドと、Supabaseをバックエンドとして使用しています。
+特定技能外国人の在留資格管理を効率化するWebアプリケーションです。Vite + React + TypeScript + Tailwind で構成されたフロントエンドと、Supabaseをバックエンドとして使用しています。  
+デプロイの再実行が必要な場合は、`main` ブランチに軽微な変更をコミットして push するだけで Vercel の Production が自動で再デプロイされます。
 
 ## ディレクトリ構成
 
