@@ -8,8 +8,8 @@
 
 | 環境 | 目的 | フロントエンド | バックエンド (Supabase) | 主な利用者 |
 | --- | --- | --- | --- | --- |
-| ローカル開発 | 日常の実装・ユニットテスト | `npm run dev` (Vite) | 開発専用 Supabase プロジェクト or Supabase CLI | 開発者 |
-| プレビュー | 動作確認・コードレビュー | Vercel Preview Deployment | ステージング Supabase プロジェクト | 開発者・レビュアー・QA |
+| ローカル開発 | 日常の実装・ユニットテスト | `npm run dev` (Vite) | 開発専用 Supabase プロジェクト (ステージング兼用) or Supabase CLI | 開発者 |
+| プレビュー | 動作確認・コードレビュー | Vercel Preview Deployment | 開発用 Supabase プロジェクト (本番と分離) | 開発者・レビュアー・QA |
 | 本番 | 実運用 | Vercel Production | 本番 Supabase プロジェクト | エンドユーザー・管理者 |
 
 ---
@@ -17,9 +17,9 @@
 ## 2. Supabase 設計
 
 ### 2.1 プロジェクトの分離
-- 開発／ステージング用 Supabase と本番 Supabase を分けるのが推奨。
-- スキーマ変更や seed の適用をステージングで検証してから本番へ反映する運用とする。
-- Supabase CLI (`supabase start`) を使えば、ローカル Docker 上で Supabase を起動してテストすることも可能。
+- プロトタイプ段階では **開発／ステージング共有の Supabase プロジェクト** と **本番 Supabase プロジェクト** の 2 つ構成で運用し、スキーマやデータを本番から切り離す。
+- スキーマ変更や seed の適用は開発プロジェクトで検証し、問題なければ本番プロジェクトへ反映する。
+- Supabase CLI (`supabase start`) を併用すれば、ローカル Docker 上で Supabase を起動して検証することも可能。
 
 ### 2.2 運用フロー
 1. `supabase/schema.sql`・`supabase/rls_policies.sql` をステージングへ適用（SQL Editor または CLI）。
