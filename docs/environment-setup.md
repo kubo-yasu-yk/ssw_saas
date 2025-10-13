@@ -14,36 +14,35 @@
 
 ---
 
-## 2. Supabase 設計
+## 2. 開発環境の設定
 
-### 2.1 プロジェクトの分離
-- プロトタイプ段階では **開発／ステージング共有の Supabase プロジェクト** と **本番 Supabase プロジェクト** の 2 つ構成で運用し、スキーマやデータを本番から切り離す。
-- スキーマ変更や seed の適用は開発プロジェクトで検証し、問題なければ本番プロジェクトへ反映する。
-- Supabase CLI (`supabase start`) を併用すれば、ローカル Docker 上で Supabase を起動して検証することも可能。
+### 2.1 Supabase（開発／ステージング兼用）
+- プロトタイプ段階では **開発／ステージング共有の Supabase プロジェクト** を 1 つ用意し、実装中のスキーマやデータを本番から切り離す。
+- スキーマ変更や seed の適用はこの開発 Supabase 上で検証し、問題がなければ本番プロジェクトへ反映する。
+- Supabase CLI (`supabase start`) を併用すると、ローカル Docker 上で Supabase を起動して検証することも可能。
 
-### 2.2 運用フロー
-1. `supabase/schema.sql`・`supabase/rls_policies.sql` をステージングへ適用（SQL Editor または CLI）。
-2. ステージングで挙動を確認し問題なければ、本番プロジェクトにも同じ SQL を適用。
-3. 認証ユーザー（`profiles`）や初期データは各環境ごとに手動登録（`seed.sql` は TRUNCATE を含むため開発専用）。
-
----
-
-## 3. Vercel 設計
-
-### 3.1 環境変数の管理
-- ローカル: `frontend/.env.local` に開発用 Supabase の `VITE_SUPABASE_URL` と `VITE_SUPABASE_ANON_KEY` を記載。
-- Vercel Preview: `Settings → Environment Variables` で Scope を `Preview` に設定し、ステージング Supabase の値を登録。
-- Vercel Production: Scope を `Production` にして本番 Supabase の値を登録。
-
-### 3.2 ビルド設定
-- Root Directory を `frontend` に設定。
-- Build Command: `npm run build`
-- Install Command: `npm install`
-- Production Overrides が残っている場合は新しい本番デプロイを作成して上書きする。
+### 2.2 フロントエンド（ローカル／Vercel Preview）
+- ローカル `.env.local` に開発用 Supabase の `VITE_SUPABASE_URL` と `VITE_SUPABASE_ANON_KEY` を記載して `npm run dev` で実行。
+- Vercel Preview (ブランチデプロイ) の環境変数に、開発 Supabase の URL／anon key を設定しておく。
+- Build 設定は Root Directory `frontend`、Build Command `npm run build`、Install Command `npm install` を使用する。
 
 ---
 
-## 4. 開発ワークフロー
+## 3. 本番環境の設定
+
+### 3.1 Supabase（本番）
+1. `supabase/schema.sql`・`supabase/rls_policies.sql` を適用（SQL Editor や CLI を利用）。SQL Editor では `schema/*.sql` や `policies/*.sql` を順番に実行する。
+2. 開発 Supabase 上で確認済みの変更のみを本番へ反映する。
+3. 認証ユーザー（`profiles`）や初期データは手動で登録する（`seed.sql` は TRUNCATE を含むため本番では使用しない）。
+
+### 3.2 フロントエンド（Vercel Production）
+- `Settings → Environment Variables` で Scope を `Production` に設定し、本番 Supabase の `VITE_SUPABASE_URL` と `VITE_SUPABASE_ANON_KEY` を登録。
+- Build 設定は開発環境と同じく Root Directory `frontend`、Build Command `npm run build`、Install Command `npm install` を使用する。
+- 古い Production Overrides が残っている場合は、新しい本番デプロイを作成して設定を上書きする。
+
+---
+
+## 4. 運用フロー
 
 1. **ローカル開発**  
    - `.env.local` の Supabase 開発用キーで `npm run dev`。
