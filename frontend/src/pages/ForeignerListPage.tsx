@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import { Textarea } from '@components/ui/textarea'
 import { toast } from '@components/ui/use-toast'
-import { useAppDispatch, useAppState } from '@context/AppStateContext'
+import { useAppActions, useAppDispatch, useAppState } from '@context/AppStateContext'
 import { NATIONALITY_OPTIONS, RESIDENCE_PERIOD_OPTIONS, RESIDENCE_STATUS_OPTIONS, WORK_CATEGORY_OPTIONS } from '@utils/constants'
 
 const schema = z.object({
@@ -40,8 +40,9 @@ type FormValues = z.infer<typeof schema>
 const createId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2))
 
 export default function ForeignerListPage() {
-  const { foreigners } = useAppState()
+  const { foreigners, company } = useAppState()
   const dispatch = useAppDispatch()
+  const actions = useAppActions()
   const [keyword, setKeyword] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
 
@@ -69,12 +70,16 @@ export default function ForeignerListPage() {
     )
   }, [foreigners, keyword])
 
-  const handleAdd = (values: FormValues) => {
-    dispatch({
-      type: 'ADD_FOREIGNER',
-      payload: {
-        id: createId(),
-        companyId: foreigners[0]?.companyId ?? 'c1',
+  const handleAdd = async (values: FormValues) => {
+    const companyId = company?.id
+    if (!companyId) {
+      toast({ title: '会社情報が未読み込みです', description: '再読み込み後にお試しください。', variant: 'destructive' })
+      return
+    }
+
+    await actions
+      .createForeigner({
+        companyId,
         name: values.name,
         nameKana: values.nameKana,
         nationality: values.nationality,
@@ -84,11 +89,12 @@ export default function ForeignerListPage() {
         residencePeriod: values.residencePeriod,
         workCategory: values.workCategory,
         notes: values.notes?.trim() ? values.notes : undefined,
-      },
-    })
-    toast({ title: '外国人情報を追加しました', description: values.name })
-    form.reset()
-    setDialogOpen(false)
+      })
+      .then(() => {
+        toast({ title: '外国人情報を追加しました', description: values.name })
+        form.reset()
+        setDialogOpen(false)
+      })
   }
 
   return (

@@ -17,13 +17,16 @@
       "@components/*": ["src/components/*"],
       "@pages/*": ["src/pages/*"],
       "@types/*": ["src/types/*"],
-      "@data/*": ["src/data/*"],
       "@utils/*": ["src/utils/*"],
       "@context/*": ["src/context/*"],
       "@lib/*": ["src/lib/*"],
-      "@hooks/*": ["src/hooks/*"]
+      "@hooks/*": ["src/hooks/*"],
+      "@services/*": ["src/services/*"],
+      "@api/*": ["src/api/*"],
+      "@state/*": ["src/state/*"],
+      "@shared/*": ["src/shared/*"],
+      "@mocks/*": ["src/mocks/*"]
     }
   },
   "include": ["src"]
 }
-

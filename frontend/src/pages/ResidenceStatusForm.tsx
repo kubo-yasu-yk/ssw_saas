@@ -18,7 +18,7 @@ import { Input } from '@components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@components/ui/select'
 import { Textarea } from '@components/ui/textarea'
 import { toast } from '@components/ui/use-toast'
-import { useAppDispatch, useAppState } from '@context/AppStateContext'
+import { useAppActions, useAppDispatch, useAppState } from '@context/AppStateContext'
 import { DOCUMENT_TYPE_LABELS, RESIDENCE_PERIOD_OPTIONS, RESIDENCE_STATUS_OPTIONS, WORK_CATEGORY_OPTIONS } from '@utils/constants'
 import { createId } from '@utils/id'
 import type { Document } from '@types/index'
@@ -38,6 +38,7 @@ type FormValues = z.infer<typeof schema>
 export default function ResidenceStatusForm() {
   const { foreigners } = useAppState()
   const dispatch = useAppDispatch()
+  const actions = useAppActions()
   const [previewData, setPreviewData] = useState<Document | null>(null)
 
   const defaultForeigner = foreigners[0]
@@ -58,21 +59,17 @@ export default function ResidenceStatusForm() {
   const foreignerId = form.watch('foreignerId')
   const selectedForeigner = foreigners.find((f) => f.id === foreignerId)
 
-  const handleSubmit = (values: FormValues) => {
+  const handleSubmit = async (values: FormValues) => {
     if (!selectedForeigner) {
       toast({ title: '対象者を選択してください', variant: 'destructive' })
       return
     }
 
-    const now = new Date().toISOString()
-    const payload: Document = {
-      id: createId(),
-      type: 'residence_status',
+    const documentData = {
+      type: 'residence_status' as const,
       title: DOCUMENT_TYPE_LABELS.residence_status,
-      status: 'draft',
+      status: 'draft' as const,
       foreignerId: selectedForeigner.id,
-      createdAt: now,
-      updatedAt: now,
       data: {
         ...selectedForeigner,
         workCategory: values.workCategory,
@@ -84,8 +81,11 @@ export default function ResidenceStatusForm() {
       },
     }
 
-    dispatch({ type: 'ADD_DOCUMENT', payload })
-    toast({ title: '下書きを保存しました', description: `${selectedForeigner.name} / ${payload.title}` })
+    await actions
+      .createDocument(documentData)
+      .then(() => {
+        toast({ title: '下書きを保存しました', description: `${selectedForeigner.name} / ${documentData.title}` })
+      })
   }
 
   const handlePreview = () => {

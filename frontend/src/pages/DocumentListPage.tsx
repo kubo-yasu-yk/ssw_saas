@@ -17,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import StatusBadge from '@components/StatusBadge'
 import { toast } from '@components/ui/use-toast'
-import { useAppDispatch, useAppState } from '@context/AppStateContext'
+import { useAppActions, useAppDispatch, useAppState } from '@context/AppStateContext'
 import { DOCUMENT_STATUS_LABELS, DOCUMENT_TYPE_LABELS, DOCUMENT_TYPE_ROUTES } from '@utils/constants'
 import type { Document, DocumentStatus, DocumentType } from '@types/index'
 
@@ -32,6 +32,7 @@ type FiltersForm = {
 export default function DocumentListPage() {
   const { documents, foreigners } = useAppState()
   const dispatch = useAppDispatch()
+  const actions = useAppActions()
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null)
 
   const form = useForm<FiltersForm>({
@@ -50,12 +51,15 @@ export default function DocumentListPage() {
 
   const getForeignerName = (id: string) => foreigners.find((f) => f.id === id)?.name ?? '不明'
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!selectedDocument) return
 
-    dispatch({ type: 'DELETE_DOCUMENT', documentId: selectedDocument.id })
-    toast({ title: '書類を削除しました', description: '一覧を更新しました。' })
-    setSelectedDocument(null)
+    await actions
+      .deleteDocument(selectedDocument.id)
+      .then(() => {
+        toast({ title: '書類を削除しました', description: '一覧を更新しました。' })
+        setSelectedDocument(null)
+      })
   }
 
   const handleExportPdf = (doc: Document) => {

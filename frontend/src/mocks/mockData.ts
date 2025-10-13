@@ -1,3 +1,13 @@
+/**
+ * モックデータ
+ * 
+ * 注意: このファイルはSupabase統合後も以下の目的で保持されています：
+ * - 開発中のフォールバックデータ
+ * - テスト用の参照データ
+ * - データ構造の例示
+ * 
+ * 実際のアプリケーションではSupabaseからデータを取得します。
+ */
 import type { ActivityLog, Company, Document, Foreigner } from '@types/index'
 
 export const foreigners: Foreigner[] = [

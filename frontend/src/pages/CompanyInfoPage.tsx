@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -8,7 +9,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@components/ui/input'
 import { Textarea } from '@components/ui/textarea'
 import { toast } from '@components/ui/use-toast'
-import { useAppDispatch, useAppState } from '@context/AppStateContext'
+import { useAppActions, useAppDispatch, useAppState, useAppStatus } from '@context/AppStateContext'
 
 const schema = z.object({
   name: z.string().min(1, '会社名は必須です'),
@@ -22,28 +23,48 @@ type FormValues = z.infer<typeof schema>
 
 export default function CompanyInfoPage() {
   const { company } = useAppState()
+  const { isLoading } = useAppStatus()
   const dispatch = useAppDispatch()
+  const actions = useAppActions()
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: company.name,
-      address: company.address,
-      representative: company.representative,
-      phone: company.phone,
-      registrationNumber: company.registrationNumber,
+      name: '',
+      address: '',
+      representative: '',
+      phone: '',
+      registrationNumber: '',
     },
   })
 
-  const handleSubmit = (values: FormValues) => {
-    dispatch({
-      type: 'UPDATE_COMPANY',
-      payload: {
-        ...company,
-        ...values,
-      },
-    })
-    toast({ title: '会社情報を更新しました', description: '入力内容を保存しました。' })
+  useEffect(() => {
+    if (company) {
+      form.reset({
+        name: company.name ?? '',
+        address: company.address ?? '',
+        representative: company.representative ?? '',
+        phone: company.phone ?? '',
+        registrationNumber: company.registrationNumber ?? '',
+      })
+    }
+  }, [company, form])
+
+  const handleSubmit = async (values: FormValues) => {
+    if (!company?.id) {
+      toast({ title: '会社情報が読み込まれていません', description: '再読み込み後にお試しください。', variant: 'destructive' })
+      return
+    }
+
+    await actions
+      .updateCompany(company.id, values)
+      .then(() => {
+        toast({ title: '会社情報を更新しました', description: '入力内容を保存しました。' })
+      })
+  }
+
+  if (!company) {
+    return <div className="p-6 text-sm text-muted-foreground">{isLoading ? '読み込み中…' : '会社情報が見つかりません。'}</div>
   }
 
   return (
