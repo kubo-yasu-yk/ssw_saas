@@ -101,8 +101,6 @@
 
 - **[セットアップ手順](./docs/setup.md)** - Supabaseバックエンドの詳細なセットアップ手順
 - **[環境設計ガイド](./docs/environment-setup.md)** - 開発／本番の Supabase・Vercel 構成ポリシー
-- **[実装プラン](./docs/implementation.md)** - Supabase統合の実装計画と進捗
-- **[コードレビュー依頼](./docs/codex-review.md)** - Codexレビュー用プロンプト
 
 ## セットアップ
 
