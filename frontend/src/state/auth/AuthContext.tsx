@@ -64,9 +64,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } = await supabase.auth.getSession()
           if (existingSession) {
             await supabase.auth.signOut()
+            setSession(null)
+            setUser(null)
           }
-        } catch (signOutError) {
-          console.warn('Failed to clear existing session before login:', signOutError)
+        } catch (cleanupError) {
+          console.warn('Failed to clear existing session before login:', cleanupError)
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({
