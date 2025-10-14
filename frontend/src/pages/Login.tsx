@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,9 +17,15 @@ const schema = z.object({
 })
 
 export default function LoginPage() {
-  const { login, authError } = useAuth()
+  const { login, authError, isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
 
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
