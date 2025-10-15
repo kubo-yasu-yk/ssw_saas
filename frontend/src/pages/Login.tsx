@@ -37,11 +37,14 @@ export default function LoginPage() {
 
   const handleSubmit = async (values: z.infer<typeof schema>) => {
     setIsLoading(true)
-    const ok = await login(values.email, values.password)
-    setIsLoading(false)
-    if (ok) {
-      toast({ title: 'ログインしました', description: 'ダッシュボードへリダイレクトします。' })
-      navigate('/')
+    try {
+      const ok = await login(values.email, values.password)
+      if (ok) {
+        toast({ title: 'ログインしました', description: 'ダッシュボードへリダイレクトします。' })
+        navigate('/')
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 

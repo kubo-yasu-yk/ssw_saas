@@ -59,16 +59,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthError(null)
       try {
         try {
-          const {
-            data: { session: existingSession },
-          } = await supabase.auth.getSession()
-          if (existingSession) {
-            await supabase.auth.signOut()
-            setSession(null)
-            setUser(null)
-          }
+          await supabase.auth.signOut({ scope: 'local' })
+          setSession(null)
+          setUser(null)
         } catch (cleanupError) {
-          console.warn('Failed to clear existing session before login:', cleanupError)
+          console.warn('Failed to clear local session before login:', cleanupError)
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -119,9 +114,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // ログアウト処理
   const logout = useCallback(async () => {
     try {
-      await supabase.auth.signOut()
+      await supabase.auth.signOut({ scope: 'local' })
     } catch (error) {
-      console.error('Logout error:', error)
+      console.warn('Local signOut error:', error)
+    }
+    try {
+      await supabase.auth.signOut({ scope: 'global' })
+    } catch (error) {
+      console.error('Global signOut error:', error)
     }
     setSession(null)
     setUser(null)
