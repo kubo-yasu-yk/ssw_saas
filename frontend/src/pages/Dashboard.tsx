@@ -1,9 +1,14 @@
+import { useMemo } from 'react'
+
 import { Button } from '@components/ui/button'
+import { Badge } from '@components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@components/ui/table'
 import StatusBadge from '@components/StatusBadge'
 import { useAppState } from '@context/AppStateContext'
 import { DOCUMENT_TYPE_LABELS } from '@utils/constants'
+import { buildTaskSummaries } from '@utils/taskBoard'
+import type { TaskCardStatus, TaskCardSummary } from '@types/index'
 
 function isSameMonth(date: Date, compare: Date) {
   return date.getFullYear() === compare.getFullYear() && date.getMonth() === compare.getMonth()
@@ -16,6 +21,7 @@ function formatDate(dateString: string, options?: Intl.DateTimeFormatOptions) {
 
 export default function Dashboard() {
   const { documents, activities, foreigners } = useAppState()
+  const taskSummaries = useMemo(() => buildTaskSummaries({ documents, foreigners }), [documents, foreigners])
 
   const today = new Date()
   const submittedCount = documents.filter((doc) => doc.status === 'submitted').length
@@ -32,6 +38,8 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <TaskBoard summaries={taskSummaries} />
+
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <StatsCard title="申請中" value={`${submittedCount}件`} description="現在申請中の書類数" />
         <StatsCard title="承認済み" value={`${approvedCount}件`} description="審査が完了した書類数" />
@@ -132,3 +140,81 @@ function StatsCard({ title, value, description }: StatsCardProps) {
   )
 }
 
+const STATUS_STYLES: Record<TaskCardStatus, string> = {
+  none: 'bg-muted text-muted-foreground',
+  normal: 'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  warning: 'bg-amber-100 text-amber-700 border border-amber-200',
+  danger: 'bg-rose-100 text-rose-700 border border-rose-200',
+  overdue: 'bg-red-200 text-red-800 border border-red-300',
+}
+
+const STATUS_LABEL: Record<TaskCardStatus, string> = {
+  none: '対応済み',
+  normal: '順調',
+  warning: '要注意',
+  danger: '緊急',
+  overdue: '期限超過',
+}
+
+interface TaskBoardProps {
+  summaries: TaskCardSummary[]
+}
+
+function TaskBoard({ summaries }: TaskBoardProps) {
+  return (
+    <section className="grid gap-4 lg:grid-cols-3">
+      {summaries.map((summary) => (
+        <TaskBoardCard key={summary.id} summary={summary} />
+      ))}
+    </section>
+  )
+}
+
+interface TaskBoardCardProps {
+  summary: TaskCardSummary
+}
+
+function TaskBoardCard({ summary }: TaskBoardCardProps) {
+  const statusStyle = STATUS_STYLES[summary.status]
+  const statusLabel = STATUS_LABEL[summary.status]
+  const remainingLabel =
+    summary.remainingDays !== undefined
+      ? summary.remainingDays < 0
+        ? `${Math.abs(summary.remainingDays)}日前に期限超過`
+        : `残り ${summary.remainingDays} 日`
+      : '期限情報なし'
+
+  return (
+    <Card className="flex flex-col justify-between">
+      <CardHeader className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <CardTitle className="text-lg">{summary.title}</CardTitle>
+            <CardDescription>{summary.description}</CardDescription>
+          </div>
+          <Badge className={`text-xs ${statusStyle}`}>{statusLabel}</Badge>
+        </div>
+        <div className="flex items-baseline justify-between text-sm">
+          <span className="text-muted-foreground">対象</span>
+          <span className="font-semibold text-foreground">{summary.count}件</span>
+        </div>
+        <p className="text-sm text-muted-foreground">{remainingLabel}</p>
+        {summary.meta && (
+          <dl className="space-y-1 text-xs text-muted-foreground">
+            {summary.meta.map((item) => (
+              <div key={`${summary.id}-${item.label}`} className="flex justify-between gap-2">
+                <dt>{item.label}</dt>
+                <dd className="text-foreground">{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </CardHeader>
+      <CardContent>
+        <Button variant="outline" className="w-full" asChild>
+          <a href={summary.ctaHref}>詳細を見る</a>
+        </Button>
+      </CardContent>
+    </Card>
+  )
+}

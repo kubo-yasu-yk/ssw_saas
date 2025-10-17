@@ -65,6 +65,22 @@ export interface DashboardStats {
   monthlyCount: number
 }
 
+export type TaskCardId = 'regularReport' | 'visaRenewal' | 'resignation'
+
+export type TaskCardStatus = 'normal' | 'warning' | 'danger' | 'overdue' | 'none'
+
+export interface TaskCardSummary {
+  id: TaskCardId
+  title: string
+  description: string
+  deadline?: string
+  remainingDays?: number
+  status: TaskCardStatus
+  count: number
+  ctaHref: string
+  meta?: Array<{ label: string; value: string }>
+}
+
 export interface PaginationParams {
   page?: number
   pageSize?: number
